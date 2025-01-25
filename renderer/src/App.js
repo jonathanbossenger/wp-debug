@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 function App() {
   const [selectedDirectory, setSelectedDirectory] = useState(null);
@@ -6,6 +6,7 @@ function App() {
   const [logContent, setLogContent] = useState('');
   const [isWatching, setIsWatching] = useState(false);
   const [error, setError] = useState(null);
+  const logScrollAreaRef = useRef(null);
 
   useEffect(() => {
     // Set up debug log update listener
@@ -15,6 +16,13 @@ function App() {
       });
     }
   }, []);
+
+  useEffect(() => {
+    // Auto-scroll to bottom when log content changes
+    if (logScrollAreaRef.current) {
+      logScrollAreaRef.current.scrollTop = logScrollAreaRef.current.scrollHeight;
+    }
+  }, [logContent]);
 
   useEffect(() => {
     // Start watching debug.log when directory is selected
@@ -66,6 +74,32 @@ function App() {
     await window.electronAPI.quitApp();
   };
 
+  const renderLogContent = (content) => {
+    // Split content into entries (entries typically start with a timestamp in brackets)
+    const entries = content.split(/(?=\[)/);
+    
+    return entries.map((entry, index) => {
+      if (!entry.trim()) return null; // Skip empty entries
+      
+      // Split the entry into timestamp and message
+      const timestampMatch = entry.match(/^(\[[^\]]+\])/);
+      const timestamp = timestampMatch ? timestampMatch[1] : '';
+      const message = timestampMatch ? entry.slice(timestamp.length) : entry;
+      
+      return (
+        <div
+          key={index}
+          className={`py-2 px-2 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} whitespace-pre-wrap`}
+        >
+          {timestamp && (
+            <span className="inline-block text-indigo-700 font-medium mr-2">{timestamp}</span>
+          )}
+          <span className="text-gray-700">{message}</span>
+        </div>
+      );
+    }).filter(Boolean); // Remove null entries
+  };
+
   return (
     <div className="h-screen flex flex-col bg-gray-100">
       <div className="flex-1 p-4 overflow-hidden">
@@ -101,9 +135,11 @@ function App() {
               
               <div className="flex-1 flex flex-col mt-6 min-h-0">
                 <h2 className="text-2xl font-semibold text-gray-800 mb-4">Debug Log</h2>
-                <div className="log-scroll-area p-4 font-mono text-sm flex-1">
+                <div ref={logScrollAreaRef} className="log-scroll-area p-4 font-mono text-sm flex-1">
                   {logContent ? (
-                    <pre className="log-content text-gray-800">{logContent}</pre>
+                    <div className="log-content text-gray-800">
+                      {renderLogContent(logContent)}
+                    </div>
                   ) : (
                     <p className="text-gray-500 italic">No log entries yet</p>
                   )}
