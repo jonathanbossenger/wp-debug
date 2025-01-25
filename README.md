@@ -2,6 +2,10 @@
 
 A desktop application for monitoring WordPress debug logs in real-time. Built with Electron and React.
 
+## Screenshot
+
+![Screenshot](screenshots/debug.log.png)
+
 ## Features
 
 - Real-time monitoring of WordPress debug.log files
