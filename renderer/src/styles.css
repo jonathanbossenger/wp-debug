@@ -3,9 +3,16 @@
 @tailwind utilities;
 
 @layer base {
+    html, body, #root {
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+    }
+    
     body {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         @apply bg-gray-100;
+        overflow: hidden;
     }
 }
 
@@ -24,7 +31,7 @@
 }
 
 .log-scroll-area {
-    height: calc(100vh - 400px);
+    height: calc(100vh - 280px);
     min-height: 300px;
     overflow-y: auto;
     border: 1px solid rgba(0, 0, 0, 0.1);
