@@ -148,13 +148,13 @@ function App() {
                   <div className="space-x-3">
                     <button
                       onClick={handleClearLog}
-                      className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 shadow-sm"
+                      className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 shadow-sm"
                     >
                       Clear Log
                     </button>
                     <button
                       onClick={handleQuit}
-                      className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 shadow-sm"
+                      className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 shadow-sm"
                     >
                       Quit
                     </button>
