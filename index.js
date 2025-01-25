@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const chokidar = require('chokidar');
-const fs = require('fs').promises;
+const fs = require('fs');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -56,8 +56,8 @@ ipcMain.handle('watch-debug-log', async (event, wpDirectory) => {
 
   try {
     // Create empty debug.log if it doesn't exist
-    await fs.access(debugLogPath).catch(async () => {
-      await fs.writeFile(debugLogPath, '');
+    await fs.promises.access(debugLogPath).catch(async () => {
+      await fs.promises.writeFile(debugLogPath, '');
     });
 
     watcher = chokidar.watch(debugLogPath, {
@@ -68,7 +68,7 @@ ipcMain.handle('watch-debug-log', async (event, wpDirectory) => {
 
     watcher.on('change', async () => {
       try {
-        const content = await fs.readFile(debugLogPath, 'utf8');
+        const content = await fs.promises.readFile(debugLogPath, 'utf8');
         mainWindow.webContents.send('debug-log-updated', content);
       } catch (error) {
         console.error('Error reading debug.log:', error);
@@ -76,7 +76,7 @@ ipcMain.handle('watch-debug-log', async (event, wpDirectory) => {
     });
 
     // Read initial content
-    const initialContent = await fs.readFile(debugLogPath, 'utf8');
+    const initialContent = await fs.promises.readFile(debugLogPath, 'utf8');
     return initialContent;
   } catch (error) {
     console.error('Error setting up debug.log watch:', error);
@@ -88,7 +88,7 @@ ipcMain.handle('watch-debug-log', async (event, wpDirectory) => {
 ipcMain.handle('clear-debug-log', async (event, wpDirectory) => {
   const debugLogPath = path.join(wpDirectory, 'wp-content', 'debug.log');
   try {
-    await fs.writeFile(debugLogPath, '');
+    await fs.promises.writeFile(debugLogPath, '');
     return true;
   } catch (error) {
     console.error('Error clearing debug.log:', error);
