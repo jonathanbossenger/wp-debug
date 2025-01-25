@@ -7,6 +7,9 @@
   - Handle large files by showing only most recent entries
   - No filtering or search capabilities in initial version
   - Support emptying/clearing the debug.log file
+  - Auto-scroll to latest log entries
+  - Highlight timestamps in log entries
+  - Alternating row colors for better readability
 - System tray integration with notifications
   - All log entries trigger notifications
   - Clicking notification opens main window
@@ -14,15 +17,19 @@
 - Main window to display log entries
   - Real-time updates as new entries appear
   - Ability to clear log file contents
+  - Responsive layout with proper overflow handling
+  - Quit application functionality
 - WordPress installation detection/selection
   - Support one WordPress installation at a time
   - Manual folder selection
-  - No WordPress installation validation required
+  - Validate selected directory is a WordPress installation
+  - Check and configure WP_DEBUG settings in wp-config.php
+  - Ensure proper debug configuration (WP_DEBUG_DISPLAY and WP_DEBUG_LOG)
 - Cross-platform support
 
 ## Technical Stack:
 
 - Electron for desktop app framework
 - React for UI
-- Simple styling solution (we can use Tailwind CSS as it's easy to use)
+- Tailwind CSS for styling with responsive design
 - File system monitoring for log changes
