@@ -96,6 +96,11 @@ ipcMain.handle('clear-debug-log', async (event, wpDirectory) => {
   }
 });
 
+// Handle quitting the app
+ipcMain.handle('quit-app', () => {
+  app.quit();
+});
+
 app.whenReady().then(() => {
   createWindow();
 

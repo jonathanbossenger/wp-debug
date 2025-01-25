@@ -54,6 +54,10 @@ function App() {
     }
   };
 
+  const handleQuit = async () => {
+    await window.electronAPI.quitApp();
+  };
+
   return (
     <div className="h-screen flex flex-col bg-gray-100">
       <div className="flex-1 p-4 overflow-hidden">
@@ -92,12 +96,20 @@ function App() {
                   )}
                 </div>
                 <div className="mt-4 text-right flex-none">
-                  <button
-                    onClick={handleClearLog}
-                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 shadow-sm"
-                  >
-                    Clear Log
-                  </button>
+                  <div className="space-x-3">
+                    <button
+                      onClick={handleClearLog}
+                      className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 shadow-sm"
+                    >
+                      Clear Log
+                    </button>
+                    <button
+                      onClick={handleQuit}
+                      className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 shadow-sm"
+                    >
+                      Quit
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
