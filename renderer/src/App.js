@@ -55,65 +55,61 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-4">WP Debug</h1>
-        <div className="bg-white shadow-lg rounded-lg p-6">
-          {selectedDirectory ? (
-            <div>
-              <div className="flex justify-between items-center mb-4">
-                <div className="flex-1 mr-4">
-                  <p className="font-semibold">Selected WordPress directory:</p>
-                  <p className="bg-gray-100 p-2 rounded break-all font-mono text-sm">
+    <div className="min-h-screen bg-gray-100 p-4">
+      <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-lg p-6">
+        <h1 className="text-3xl font-bold mb-6 text-gray-800">WP Debug</h1>
+        
+        {selectedDirectory ? (
+          <div className="space-y-6">
+            <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+              <div className="flex justify-between items-start gap-4">
+                <div className="flex-1">
+                  <p className="font-medium text-gray-700 mb-2">WordPress Directory</p>
+                  <p className="bg-white px-4 py-2 rounded-md border border-gray-200 font-mono text-sm text-gray-600 break-all">
                     {selectedDirectory}
                   </p>
                 </div>
                 <button
                   onClick={handleSelectDirectory}
                   disabled={isSelecting}
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50 whitespace-nowrap"
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2.5 rounded-lg disabled:opacity-50 whitespace-nowrap transition-colors duration-200 shadow-sm"
                 >
                   Change Directory
                 </button>
               </div>
-              
-              <div className="mt-6">
-                <div className="flex justify-between items-center mb-2">
-                  <h2 className="text-xl font-semibold">Debug Log</h2>
-                  <button
-                    onClick={handleClearLog}
-                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm"
-                  >
-                    Clear Log
-                  </button>
-                </div>
-                <div className="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm h-96 overflow-auto">
-                  {logContent ? (
-                    <pre className="log-content">{logContent}</pre>
-                  ) : (
-                    <p className="text-gray-500 italic">No log entries yet</p>
-                  )}
-                </div>
-                {isWatching && (
-                  <p className="text-sm text-gray-600 mt-2">
-                    ✓ Watching for changes in debug.log
-                  </p>
+            </div>
+            
+            <div>
+              <h2 className="text-2xl font-semibold text-gray-800 mb-4">Debug Log</h2>
+              <div className="log-scroll-area p-4 font-mono text-sm">
+                {logContent ? (
+                  <pre className="log-content text-gray-800">{logContent}</pre>
+                ) : (
+                  <p className="text-gray-500 italic">No log entries yet</p>
                 )}
               </div>
+              <div className="mt-8 text-right">
+                <button
+                  onClick={handleClearLog}
+                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200 shadow-sm"
+                >
+                  Clear Log
+                </button>
+              </div>
             </div>
-          ) : (
-            <div>
-              <p className="mb-4">Select a WordPress installation to begin monitoring debug.log</p>
-              <button
-                onClick={handleSelectDirectory}
-                disabled={isSelecting}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
-              >
-                {isSelecting ? 'Selecting...' : 'Select Directory'}
-              </button>
-            </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-lg text-gray-600 mb-6">Select a WordPress installation to begin monitoring debug.log</p>
+            <button
+              onClick={handleSelectDirectory}
+              disabled={isSelecting}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg disabled:opacity-50 transition-colors duration-200 shadow-sm"
+            >
+              {isSelecting ? 'Selecting...' : 'Select Directory'}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
