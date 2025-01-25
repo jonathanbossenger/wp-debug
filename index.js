@@ -11,6 +11,62 @@ if (require('electron-squirrel-startup')) {
 let mainWindow = null;
 let watcher = null;
 
+// Function to check if directory is a WordPress installation
+const isWordPressDirectory = async (directory) => {
+  try {
+    const configPath = path.join(directory, 'wp-config.php');
+    await fs.promises.access(configPath);
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+
+// Function to enable WP_DEBUG configuration
+const enableWPDebug = async (wpDirectory) => {
+  try {
+    const configPath = path.join(wpDirectory, 'wp-config.php');
+    let configContent = await fs.promises.readFile(configPath, 'utf8');
+    
+    // Handle each constant separately
+    const constants = [
+      { name: 'WP_DEBUG', value: 'true' },
+      { name: 'WP_DEBUG_DISPLAY', value: 'false' },
+      { name: 'WP_DEBUG_LOG', value: 'true' }
+    ];
+
+    for (const { name, value } of constants) {
+      const regex = new RegExp(`define\\s*\\(\\s*['"]${name}['"]\\s*,\\s*(.+?)\\s*\\);`, 'g');
+      const exists = regex.test(configContent);
+      
+      if (exists) {
+        // Update existing constant
+        configContent = configContent.replace(
+          new RegExp(`define\\s*\\(\\s*['"]${name}['"]\\s*,\\s*(.+?)\\s*\\);`, 'g'),
+          `define( '${name}', ${value} );`
+        );
+      } else {
+        // Add new constant before "That's all" comment or at the end
+        const newConstant = `define( '${name}', ${value} );`;
+        const insertPosition = configContent.indexOf("/* That's all");
+        if (insertPosition !== -1) {
+          configContent = configContent.slice(0, insertPosition) + 
+            newConstant + '\n' + 
+            configContent.slice(insertPosition);
+        } else {
+          configContent = configContent + '\n' + newConstant;
+        }
+      }
+    }
+    
+    await fs.promises.writeFile(configPath, configContent, 'utf8');
+    return true;
+  } catch (error) {
+    console.error('Error updating wp-config.php:', error);
+    throw error;
+  }
+};
+
 const createWindow = () => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -40,7 +96,15 @@ ipcMain.handle('select-directory', async () => {
   });
   
   if (!result.canceled) {
-    return result.filePaths[0];
+    const directory = result.filePaths[0];
+    // Verify it's a WordPress directory
+    if (await isWordPressDirectory(directory)) {
+      // Enable WP_DEBUG configuration
+      await enableWPDebug(directory);
+      return directory;
+    } else {
+      throw new Error('Selected directory is not a WordPress installation');
+    }
   }
   return null;
 });

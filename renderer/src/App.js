@@ -5,6 +5,7 @@ function App() {
   const [isSelecting, setIsSelecting] = useState(false);
   const [logContent, setLogContent] = useState('');
   const [isWatching, setIsWatching] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     // Set up debug log update listener
@@ -22,16 +23,19 @@ function App() {
       window.electronAPI.watchDebugLog(selectedDirectory)
         .then(content => {
           setLogContent(content);
+          setError(null);
         })
         .catch(error => {
           console.error('Error watching debug.log:', error);
           setIsWatching(false);
+          setError('Error watching debug.log file');
         });
     }
   }, [selectedDirectory]);
 
   const handleSelectDirectory = async () => {
     setIsSelecting(true);
+    setError(null);
     try {
       const directory = await window.electronAPI.selectDirectory();
       if (directory) {
@@ -39,6 +43,8 @@ function App() {
       }
     } catch (error) {
       console.error('Error selecting directory:', error);
+      setError(error.message || 'Error selecting WordPress directory');
+      setSelectedDirectory(null);
     }
     setIsSelecting(false);
   };
@@ -48,8 +54,10 @@ function App() {
       try {
         await window.electronAPI.clearDebugLog(selectedDirectory);
         setLogContent('');
+        setError(null);
       } catch (error) {
         console.error('Error clearing debug.log:', error);
+        setError('Error clearing debug log file');
       }
     }
   };
@@ -64,6 +72,11 @@ function App() {
         <div className="h-full flex flex-col bg-white rounded-xl shadow-lg">
           <div className="p-6 flex-none">
             <h1 className="text-3xl font-bold text-gray-800">WP Debug</h1>
+            {error && (
+              <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-700">{error}</p>
+              </div>
+            )}
           </div>
           
           {selectedDirectory ? (
@@ -81,7 +94,7 @@ function App() {
                     disabled={isSelecting}
                     className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2.5 rounded-lg disabled:opacity-50 whitespace-nowrap transition-colors duration-200 shadow-sm h-[42px] self-end"
                   >
-                    Change Directory
+                    {isSelecting ? 'Selecting...' : 'Change Directory'}
                   </button>
                 </div>
               </div>
@@ -115,13 +128,12 @@ function App() {
             </div>
           ) : (
             <div className="flex-1 flex items-center justify-center p-6">
-              <div className="text-center max-w-lg">
-                <h2 className="text-2xl font-semibold text-gray-800 mb-4">Welcome to WP Debug</h2>
-                <p className="text-lg text-gray-600 mb-8">Select a WordPress installation directory to begin monitoring the debug.log file</p>
+              <div className="text-center">
+                <p className="text-gray-600 mb-4">Select your WordPress installation directory to begin</p>
                 <button
                   onClick={handleSelectDirectory}
                   disabled={isSelecting}
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-lg disabled:opacity-50 transition-colors duration-200 shadow-sm text-lg font-medium"
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg disabled:opacity-50 transition-colors duration-200 shadow-sm"
                 >
                   {isSelecting ? 'Selecting...' : 'Select Directory'}
                 </button>
