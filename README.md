@@ -9,10 +9,22 @@ A desktop application for monitoring WordPress debug logs in real-time. Built wi
 ## Features
 
 - Real-time monitoring of WordPress debug.log files
-- Automatic detection and validation of WordPress installations
-- Automatic configuration of WordPress debug settings
+  - Auto-scrolling to latest entries
+  - Timestamp highlighting
+  - Alternating row colors for better readability
+  - Clear log file contents with one click
+- WordPress Integration
+  - Automatic detection and validation of WordPress installations
+  - Automatic configuration of WordPress debug settings
+  - Custom mu-plugin installation for enhanced debugging (`wp_debug()` function)
+  - Automatic backup and restoration of original debug settings
+- System Tray Integration
+  - Minimizes to system tray when closed
+  - Real-time notifications for new debug entries
+  - First line preview in notifications
+  - Custom bug icon for better visibility
+  - Click notifications to open main window
 - Clean, modern UI with real-time updates
-- System tray integration with notifications
 - Cross-platform support (macOS, Windows, Linux)
 
 ## Technical Stack
@@ -21,6 +33,7 @@ A desktop application for monitoring WordPress debug logs in real-time. Built wi
 - React - UI framework
 - Tailwind CSS - Styling and responsive design
 - Chokidar - File system monitoring
+- Sharp - Image processing for system tray icons
 
 ## Prerequisites
 
@@ -88,10 +101,30 @@ npm run make -- --platform=linux
 2. Select your WordPress installation directory
 3. The app will automatically:
    - Validate the WordPress installation
-   - Configure debug settings in wp-config.php if needed
+   - Configure debug settings in wp-config.php
+   - Create a mu-plugin with the `wp_debug()` helper function
    - Start monitoring the debug.log file
-4. New debug log entries will appear in real-time with timestamp highlighting
-5. Use the system tray icon for quick access and notifications
+4. New debug log entries will appear in real-time with:
+   - Timestamp highlighting
+   - Alternating row colors
+   - Auto-scroll to latest entries
+5. System tray features:
+   - Click the bug icon to show/hide the main window
+   - Notifications show the first line of new debug entries
+   - Click notifications to focus the main window
+6. When quitting:
+   - Original WordPress debug settings are restored
+   - The mu-plugin is cleaned up automatically
+
+### Using the Debug Helper
+
+In your WordPress code, you can use the `wp_debug()` function to log variables:
+
+```php
+wp_debug($your_variable);
+```
+
+This will log the variable along with the file and line number where it was called.
 
 ## Development Scripts
 
