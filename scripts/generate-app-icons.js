@@ -18,7 +18,7 @@ const sizes = {
 };
 
 const generateIcons = async () => {
-  const svgBuffer = fs.readFileSync(path.join(__dirname, '..', 'assets', 'bug-solid.svg'));
+  const sourceImage = path.join(__dirname, '..', 'assets', 'wp-debug.svg');
   const iconsDir = path.join(__dirname, '..', 'assets', 'icons');
   const macIconsDir = path.join(iconsDir, 'mac');
   const winIconsDir = path.join(iconsDir, 'win');
@@ -32,7 +32,7 @@ const generateIcons = async () => {
   });
 
   // Generate 1024x1024 PNG for base icon
-  const pngBuffer = await sharp(svgBuffer)
+  const pngBuffer = await sharp(sourceImage)
     .resize(1024, 1024)
     .png()
     .toBuffer();
@@ -54,7 +54,7 @@ const generateIcons = async () => {
 
   // Generate mac icons for other purposes
   for (const { size, name } of sizes.mac) {
-    await sharp(svgBuffer)
+    await sharp(sourceImage)
       .resize(size, size)
       .png()
       .toFile(path.join(macIconsDir, name));
@@ -62,7 +62,7 @@ const generateIcons = async () => {
 
   // Generate windows icons
   for (const size of sizes.win) {
-    await sharp(svgBuffer)
+    await sharp(sourceImage)
       .resize(size, size)
       .png()
       .toFile(path.join(winIconsDir, `${size}x${size}.png`));
@@ -70,7 +70,7 @@ const generateIcons = async () => {
 
   // Generate linux icons
   for (const size of sizes.linux) {
-    await sharp(svgBuffer)
+    await sharp(sourceImage)
       .resize(size, size)
       .png()
       .toFile(path.join(linuxIconsDir, `${size}x${size}.png`));
