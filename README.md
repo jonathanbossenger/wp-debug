@@ -1,6 +1,6 @@
 # WP Debug
 
-![icon](screenshots/icon.png)
+<img src="https://github.com/jonathanbossenger/wp-debug/blob/main/screenshots/icon.png" width="48">
 
 A desktop application for monitoring WordPress debug logs in real-time. Built with Electron and React.
 
