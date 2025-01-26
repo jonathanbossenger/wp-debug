@@ -23,7 +23,7 @@ After downloading:
 
 ![Debug Log](screenshots/debug.png)
 
-![Stack Trace](screenshots/stack-trace.png)
+![Stack Trace](screenshots/stack_trace.png)
 
 ![Debug Helper](screenshots/wp_debug_function.png)
 
