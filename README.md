@@ -4,6 +4,19 @@
 
 A desktop application for monitoring WordPress debug logs in real-time. Built with Electron and React.
 
+## Table of Contents
+- [Download](#download)
+- [Screenshots](#screenshots)
+- [Features](#features)
+- [Technical Stack](#technical-stack)
+- [Prerequisites](#prerequisites)
+- [Development Setup](#development-setup)
+- [Building Executables](#building-executables)
+- [Usage](#usage)
+  - [Using the Debug Helper](#using-the-debug-helper)
+- [Development Scripts](#development-scripts)
+- [License](#license)
+
 ## Download
 
 You can download the latest version of WP Debug from the [GitHub releases page](https://github.com/jonathanbossenger/wp-debug/releases).
