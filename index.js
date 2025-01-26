@@ -2,7 +2,6 @@ const { app, BrowserWindow, ipcMain, dialog, Tray, nativeImage, Notification } =
 const path = require('path');
 const chokidar = require('chokidar');
 const fs = require('fs');
-const sharp = require('sharp');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -133,15 +132,8 @@ if (!function_exists('wp_debug')) {
 };
 
 const createTray = async () => {
-  // Convert SVG to PNG in memory
-  const svgBuffer = fs.readFileSync(path.join(__dirname, 'assets', 'bug-solid.svg'));
-  const pngBuffer = await sharp(svgBuffer)
-    .resize(16, 16)
-    .png()
-    .toBuffer();
-
-  // Create native image from PNG buffer
-  const trayIcon = nativeImage.createFromBuffer(pngBuffer);
+  // Use the pre-generated PNG icon
+  const trayIcon = nativeImage.createFromPath(path.join(__dirname, 'assets', 'tray-icon.png'));
   
   tray = new Tray(trayIcon);
   tray.setToolTip('WP Debug');
@@ -170,7 +162,7 @@ const showNotification = (message) => {
     body: firstLine,
     silent: false,
     timeoutType: 'default',
-    icon: path.join(__dirname, 'assets', 'bug-solid.svg') // Add the bug icon to notifications
+    icon: path.join(__dirname, 'assets', 'icons', 'mac', '128x128.png') // Use platform-specific icon
   });
   
   notification.show();
@@ -189,6 +181,7 @@ const createWindow = () => {
   mainWindow = new BrowserWindow({
     width: 1024,
     height: 768,
+    title: 'WP Debug',
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: true,

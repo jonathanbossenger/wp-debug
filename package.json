@@ -5,8 +5,11 @@
   "main": "index.js",
   "scripts": {
     "start": "electron .",
-    "dev": "webpack --watch & electron-forge start",
-    "build": "webpack --mode production",
+    "generate-icons": "node scripts/generate-app-icons.js",
+    "generate-tray": "node scripts/generate-tray-icon.js",
+    "generate-all": "npm run generate-icons && npm run generate-tray",
+    "dev": "npm run generate-all && webpack --watch & electron-forge start",
+    "build": "npm run generate-all && webpack --mode production",
     "package": "npm run build && electron-forge package",
     "make": "npm run build && electron-forge make"
   },
@@ -29,7 +32,9 @@
     "css-loader": "^7.1.2",
     "electron": "^34.0.1",
     "jimp": "^1.6.0",
+    "png2icons": "^2.0.1",
     "postcss-loader": "^8.1.1",
+    "sharp": "^0.33.5",
     "style-loader": "^4.0.0",
     "webpack": "^5.97.1",
     "webpack-cli": "^6.0.1"
@@ -42,7 +47,6 @@
     "postcss": "^8.4.38",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "sharp": "^0.33.5",
     "tailwindcss": "^3.4.1"
   }
 }
