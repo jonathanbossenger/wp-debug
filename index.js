@@ -68,6 +68,51 @@ const enableWPDebug = async (wpDirectory) => {
   }
 };
 
+// Function to create mu-plugins directory and debug plugin
+const createMuPlugin = async (wpDirectory) => {
+  try {
+    // Create mu-plugins directory if it doesn't exist
+    const muPluginsDir = path.join(wpDirectory, 'wp-content', 'mu-plugins');
+    await fs.promises.mkdir(muPluginsDir, { recursive: true });
+
+    // Check if plugin already exists
+    const pluginPath = path.join(muPluginsDir, 'wp-debug-helper.php');
+    try {
+      await fs.promises.access(pluginPath);
+      // File exists, no need to create it
+      return true;
+    } catch (error) {
+      // File doesn't exist, create it
+      const pluginContent = `<?php
+/**
+ * Plugin Name: WP Debug Helper
+ * Description: Custom debugging function for WordPress
+ * Version: 1.0
+ * Author: WP Debug App
+ */
+
+if (!function_exists('wp_debug')) {
+    function wp_debug($var) {
+        // get the backtrace
+        $backtrace = debug_backtrace();
+        // get the file and line number
+        $file = $backtrace[0]['file'];
+        $line = $backtrace[0]['line'];
+        // output the debug info
+        $var_dump = print_r($var, true);
+        error_log( "WP Debug in $file on line $line:\\n" . $var_dump );
+    }
+}`;
+
+      await fs.promises.writeFile(pluginPath, pluginContent);
+      return true;
+    }
+  } catch (error) {
+    console.error('Error creating mu-plugin:', error);
+    throw error;
+  }
+};
+
 const createTray = () => {
   // Create a template image for the tray icon
   const trayIcon = nativeImage.createEmpty();
@@ -164,6 +209,8 @@ ipcMain.handle('select-directory', async () => {
     if (await isWordPressDirectory(directory)) {
       // Enable WP_DEBUG configuration
       await enableWPDebug(directory);
+      // Create mu-plugin
+      await createMuPlugin(directory);
       return directory;
     } else {
       throw new Error('Selected directory is not a WordPress installation');

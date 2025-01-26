@@ -115,8 +115,8 @@ function App() {
   };
 
   const renderLogContent = (content) => {
-    // Split content into entries (entries typically start with a timestamp in brackets)
-    const entries = content.split(/(?=\[)/);
+    // Split content into entries (split on timestamps at the start of a line)
+    const entries = content.split(/(?=^\[.*?\])/m);
     
     return entries.map((entry, index) => {
       if (!entry.trim()) return null; // Skip empty entries

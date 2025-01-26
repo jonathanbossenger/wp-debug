@@ -1,0 +1,21 @@
+[26-Jan-2025 07:42:14 UTC] Debug output:
+Array
+(
+    [name] => Books
+    [singular_name] => Book
+    [add_new] => Add New Book
+    [add_new_item] => Add New Book
+    [edit_item] => Edit Book
+    [view_item] => View Book
+    [all_items] => All Books
+)
+
+[26-Jan-2025 07:42:22 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function dbDelta() in /home/ubuntu/wp-local-env/sites/learn/wp-content/plugins/wp-learn-bookstore-ratings/wp-learn-bookstore-ratings.php:63
+Stack trace:
+#0 /home/ubuntu/wp-local-env/sites/learn/wp-includes/class-wp-hook.php(324): wp_learn_bookstore_activate()
+#1 /home/ubuntu/wp-local-env/sites/learn/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters()
+#2 /home/ubuntu/wp-local-env/sites/learn/wp-includes/plugin.php(517): WP_Hook->do_action()
+#3 /home/ubuntu/wp-local-env/sites/learn/wp-admin/includes/plugin.php(703): do_action()
+#4 /home/ubuntu/wp-local-env/sites/learn/wp-admin/plugins.php(60): activate_plugin()
+#5 {main}
+  thrown in /home/ubuntu/wp-local-env/sites/learn/wp-content/plugins/wp-learn-bookstore-ratings/wp-learn-bookstore-ratings.php on line 63
