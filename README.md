@@ -1,5 +1,7 @@
 # WP Debug
 
+![icon](screenshots/icon.png)
+
 A desktop application for monitoring WordPress debug logs in real-time. Built with Electron and React.
 
 ## Download
@@ -15,9 +17,15 @@ After downloading:
 2. Move WP Debug.app to your Applications folder
 3. Launch the app
 
-## Screenshot
+## Screenshots
 
-![Screenshot](screenshots/debug.log.png)
+![Select WordPress Installation](screenshots/select.png)
+
+![Debug Log](screenshots/debug.png)
+
+![Stack Trace](screenshots/stack-trace.png)
+
+![Debug Helper](screenshots/wp_debug_function.png)
 
 ## Features
 
