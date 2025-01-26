@@ -189,14 +189,22 @@ function App() {
           ) : (
             <div className="flex-1 flex items-center justify-center p-6">
               <div className="text-center">
-                <p className="text-gray-600 mb-4">Select your WordPress installation directory to begin</p>
-                <button
-                  onClick={handleSelectDirectory}
-                  disabled={isSelecting}
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg disabled:opacity-50 transition-colors duration-200 shadow-sm"
-                >
-                  {isSelecting ? 'Selecting...' : 'Select Directory'}
-                </button>
+                <p className="text-gray-600 mb-4">Select your WordPress installation directory.</p>
+                <div className="space-x-3">
+                  <button
+                    onClick={handleSelectDirectory}
+                    disabled={isSelecting}
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg disabled:opacity-50 transition-colors duration-200 shadow-sm"
+                  >
+                    {isSelecting ? 'Selecting...' : 'Select Directory'}
+                  </button>
+                  <button
+                    onClick={handleQuit}
+                    className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg text-sm transition-colors duration-200 shadow-sm"
+                  >
+                    Quit
+                  </button>
+                </div>
               </div>
             </div>
           )}
