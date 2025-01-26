@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Tray, nativeImage, Notification } = require('electron');
 const path = require('path');
 const chokidar = require('chokidar');
 const fs = require('fs');
@@ -10,6 +10,7 @@ if (require('electron-squirrel-startup')) {
 
 let mainWindow = null;
 let watcher = null;
+let tray = null;
 
 // Function to check if directory is a WordPress installation
 const isWordPressDirectory = async (directory) => {
@@ -67,6 +68,59 @@ const enableWPDebug = async (wpDirectory) => {
   }
 };
 
+const createTray = () => {
+  // Create a template image for the tray icon
+  const trayIcon = nativeImage.createEmpty();
+  // Create a simple 16x16 icon with a single color
+  const size = 16;
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      trayIcon.addRepresentation({
+        width: size,
+        height: size,
+        buffer: Buffer.alloc(size * size * 4, 0xFF),
+        scaleFactor: 1.0
+      });
+    }
+  }
+  
+  tray = new Tray(trayIcon);
+  tray.setToolTip('WP Debug');
+  
+  tray.on('click', () => {
+    if (mainWindow === null) {
+      createWindow();
+    } else {
+      if (mainWindow.isVisible()) {
+        mainWindow.hide();
+      } else {
+        mainWindow.show();
+        mainWindow.focus();
+      }
+    }
+  });
+};
+
+const showNotification = (message) => {
+  // Always show notification for new debug entries, regardless of window focus
+  const notification = new Notification({
+    title: 'WP Debug Log Entry',
+    body: message.substring(0, 100) + (message.length > 100 ? '...' : ''), // Truncate long messages
+    silent: false,
+    timeoutType: 'default'
+  });
+  
+  notification.show();
+  notification.on('click', () => {
+    if (mainWindow === null) {
+      createWindow();
+    } else {
+      mainWindow.show();
+      mainWindow.focus();
+    }
+  });
+};
+
 const createWindow = () => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -86,6 +140,15 @@ const createWindow = () => {
   if (process.env.NODE_ENV === 'development') {
     mainWindow.webContents.openDevTools();
   }
+
+  // Handle window close event
+  mainWindow.on('close', (event) => {
+    if (!app.isQuitting) {
+      event.preventDefault();
+      mainWindow.hide();
+    }
+    return false;
+  });
 };
 
 // Handle directory selection
@@ -134,6 +197,13 @@ ipcMain.handle('watch-debug-log', async (event, wpDirectory) => {
       try {
         const content = await fs.promises.readFile(debugLogPath, 'utf8');
         mainWindow.webContents.send('debug-log-updated', content);
+        
+        // Show notification for new log entries
+        const entries = content.split(/(?=\[)/);
+        const lastEntry = entries[entries.length - 1];
+        if (lastEntry && lastEntry.trim()) {
+          showNotification(lastEntry.trim());
+        }
       } catch (error) {
         console.error('Error reading debug.log:', error);
       }
@@ -162,10 +232,12 @@ ipcMain.handle('clear-debug-log', async (event, wpDirectory) => {
 
 // Handle quitting the app
 ipcMain.handle('quit-app', () => {
+  app.isQuitting = true;
   app.quit();
 });
 
 app.whenReady().then(() => {
+  createTray();
   createWindow();
 
   app.on('activate', () => {

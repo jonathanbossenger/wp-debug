@@ -30,6 +30,7 @@
     "electron": "^34.0.1",
     "jimp": "^1.6.0",
     "postcss-loader": "^8.1.1",
+    "sharp": "^0.33.5",
     "style-loader": "^4.0.0",
     "webpack": "^5.97.1",
     "webpack-cli": "^6.0.1"

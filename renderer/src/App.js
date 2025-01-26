@@ -1,5 +1,45 @@
 import React, { useState, useEffect, useRef } from 'react';
 
+const LogEntry = ({ entry, index }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  // Split the entry into timestamp and message
+  const timestampMatch = entry.match(/^(\[[^\]]+\])/);
+  const timestamp = timestampMatch ? timestampMatch[1] : '';
+  const message = timestampMatch ? entry.slice(timestamp.length) : entry;
+  
+  // Split message into first line and rest
+  const lines = message.split('\n');
+  const firstLine = lines[0];
+  const remainingLines = lines.slice(1).join('\n');
+  
+  return (
+    <div className={`py-2 px-2 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} whitespace-pre-wrap`}>
+      {timestamp && (
+        <span className="inline-block text-indigo-700 font-medium mr-2">{timestamp}</span>
+      )}
+      <span className="text-gray-700">
+        {firstLine}
+        {lines.length > 1 && (
+          <>
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="ml-2 px-2 py-0.5 text-xs font-medium rounded border border-blue-200 bg-blue-50 text-blue-600 hover:bg-blue-100 hover:border-blue-300 transition-colors duration-200"
+            >
+              {isExpanded ? 'Less' : 'More'}
+            </button>
+            {isExpanded && (
+              <div className="mt-2 pl-4 border-l-2 border-gray-200">
+                {remainingLines}
+              </div>
+            )}
+          </>
+        )}
+      </span>
+    </div>
+  );
+};
+
 function App() {
   const [selectedDirectory, setSelectedDirectory] = useState(null);
   const [isSelecting, setIsSelecting] = useState(false);
@@ -80,23 +120,7 @@ function App() {
     
     return entries.map((entry, index) => {
       if (!entry.trim()) return null; // Skip empty entries
-      
-      // Split the entry into timestamp and message
-      const timestampMatch = entry.match(/^(\[[^\]]+\])/);
-      const timestamp = timestampMatch ? timestampMatch[1] : '';
-      const message = timestampMatch ? entry.slice(timestamp.length) : entry;
-      
-      return (
-        <div
-          key={index}
-          className={`py-2 px-2 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} whitespace-pre-wrap`}
-        >
-          {timestamp && (
-            <span className="inline-block text-indigo-700 font-medium mr-2">{timestamp}</span>
-          )}
-          <span className="text-gray-700">{message}</span>
-        </div>
-      );
+      return <LogEntry key={index} entry={entry} index={index} />;
     }).filter(Boolean); // Remove null entries
   };
 
