@@ -8,10 +8,13 @@ A desktop application for monitoring WordPress debug logs in real-time. Built wi
 - [Download](#download)
 - [Screenshots](#screenshots)
 - [Features](#features)
+- [Limitations](#limitations)
+- [Reporting Bugs/Feature Requests](#reporting-bugsfeature-requests)
 - [Technical Stack](#technical-stack)
 - [Prerequisites](#prerequisites)
 - [Development Setup](#development-setup)
 - [Building Executables](#building-executables)
+  - [Platform-specific builds](#platform-specific-builds)
 - [Usage](#usage)
   - [Using the Debug Helper](#using-the-debug-helper)
 - [Development Scripts](#development-scripts)
@@ -60,6 +63,14 @@ After downloading:
   - Click notifications to open main window
 - Clean, modern UI with real-time updates
 - Cross-platform support (macOS, Windows, Linux)
+
+## Limitations
+
+- Does not work with WordPress installations that are not stored on the local computer (i.e. Docker based installations)
+
+## Reporting Bugs/Feature Requests
+
+Please use the [GitHub issues](https://github.com/jonathanbossenger/wp-debug/issues) page to report bugs or request features.
 
 ## Technical Stack
 
