@@ -12,6 +12,7 @@ if (require('electron-squirrel-startup')) {
 let mainWindow = null;
 let watcher = null;
 let tray = null;
+let originalDebugSettings = null;
 
 // Function to check if directory is a WordPress installation
 const isWordPressDirectory = async (directory) => {
@@ -30,13 +31,30 @@ const enableWPDebug = async (wpDirectory) => {
     const configPath = path.join(wpDirectory, 'wp-config.php');
     let configContent = await fs.promises.readFile(configPath, 'utf8');
     
-    // Handle each constant separately
+    // Store original debug settings
+    originalDebugSettings = {
+      directory: wpDirectory,
+      WP_DEBUG: null,
+      WP_DEBUG_DISPLAY: null,
+      WP_DEBUG_LOG: null
+    };
+
+    // Extract original values using regex
     const constants = [
       { name: 'WP_DEBUG', value: 'true' },
       { name: 'WP_DEBUG_DISPLAY', value: 'false' },
       { name: 'WP_DEBUG_LOG', value: 'true' }
     ];
 
+    for (const { name } of constants) {
+      const regex = new RegExp(`define\\s*\\(\\s*['"]${name}['"]\\s*,\\s*(.+?)\\s*\\);`);
+      const match = configContent.match(regex);
+      if (match) {
+        originalDebugSettings[name] = match[1].trim();
+      }
+    }
+
+    // Now update the constants
     for (const { name, value } of constants) {
       const regex = new RegExp(`define\\s*\\(\\s*['"]${name}['"]\\s*,\\s*(.+?)\\s*\\);`, 'g');
       const exists = regex.test(configContent);
@@ -277,9 +295,67 @@ ipcMain.handle('clear-debug-log', async (event, wpDirectory) => {
   }
 });
 
+// Function to restore original WP_DEBUG settings and clean up mu-plugin
+const cleanup = async () => {
+  try {
+    // Restore original debug settings if they exist
+    if (originalDebugSettings && originalDebugSettings.directory) {
+      const configPath = path.join(originalDebugSettings.directory, 'wp-config.php');
+      let configContent = await fs.promises.readFile(configPath, 'utf8');
+
+      // Restore each constant to its original value if it existed, or remove it if it didn't exist originally
+      for (const name of ['WP_DEBUG', 'WP_DEBUG_DISPLAY', 'WP_DEBUG_LOG']) {
+        const originalValue = originalDebugSettings[name];
+        const regex = new RegExp(`\\s*define\\s*\\(\\s*['"]${name}['"]\\s*,\\s*(.+?)\\s*\\);\\n?`, 'g');
+        
+        if (originalValue !== null) {
+          // Constant existed originally, restore it
+          configContent = configContent.replace(
+            regex,
+            `define( '${name}', ${originalValue} );\n`
+          );
+        } else {
+          // Constant didn't exist originally, remove it
+          configContent = configContent.replace(regex, '');
+        }
+      }
+
+      await fs.promises.writeFile(configPath, configContent, 'utf8');
+    }
+
+    // Remove mu-plugin if it exists
+    if (originalDebugSettings && originalDebugSettings.directory) {
+      const muPluginsDir = path.join(originalDebugSettings.directory, 'wp-content', 'mu-plugins');
+      const pluginPath = path.join(muPluginsDir, 'wp-debug-helper.php');
+
+      try {
+        // Check if plugin exists
+        await fs.promises.access(pluginPath);
+        // Delete the plugin
+        await fs.promises.unlink(pluginPath);
+
+        // Check if mu-plugins directory is empty
+        const files = await fs.promises.readdir(muPluginsDir);
+        if (files.length === 0) {
+          // Remove the empty directory
+          await fs.promises.rmdir(muPluginsDir);
+        }
+      } catch (error) {
+        // Ignore errors if file/directory doesn't exist
+        if (error.code !== 'ENOENT') {
+          throw error;
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error during cleanup:', error);
+  }
+};
+
 // Handle quitting the app
-ipcMain.handle('quit-app', () => {
+ipcMain.handle('quit-app', async () => {
   app.isQuitting = true;
+  await cleanup();
   app.quit();
 });
 
