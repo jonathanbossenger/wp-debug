@@ -11,7 +11,7 @@ const LogEntry = ({ entry, index }) => {
   // Split message into first line and rest
   const lines = message.split('\n');
   const firstLine = lines[0];
-  const remainingLines = lines.slice(1).join('\n');
+  const remainingLines = lines.slice(1).join('\n').trim();
   
   return (
     <div className={`py-2 px-2 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} whitespace-pre-wrap`}>
@@ -20,7 +20,7 @@ const LogEntry = ({ entry, index }) => {
       )}
       <span className="text-gray-700">
         {firstLine}
-        {lines.length > 1 && (
+        {remainingLines && (
           <>
             <button
               onClick={() => setIsExpanded(!isExpanded)}
