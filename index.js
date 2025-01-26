@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain, dialog, Tray, nativeImage, Notification } =
 const path = require('path');
 const chokidar = require('chokidar');
 const fs = require('fs');
+const sharp = require('sharp');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -113,21 +114,16 @@ if (!function_exists('wp_debug')) {
   }
 };
 
-const createTray = () => {
-  // Create a template image for the tray icon
-  const trayIcon = nativeImage.createEmpty();
-  // Create a simple 16x16 icon with a single color
-  const size = 16;
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      trayIcon.addRepresentation({
-        width: size,
-        height: size,
-        buffer: Buffer.alloc(size * size * 4, 0xFF),
-        scaleFactor: 1.0
-      });
-    }
-  }
+const createTray = async () => {
+  // Convert SVG to PNG in memory
+  const svgBuffer = fs.readFileSync(path.join(__dirname, 'assets', 'bug-solid.svg'));
+  const pngBuffer = await sharp(svgBuffer)
+    .resize(16, 16)
+    .png()
+    .toBuffer();
+
+  // Create native image from PNG buffer
+  const trayIcon = nativeImage.createFromBuffer(pngBuffer);
   
   tray = new Tray(trayIcon);
   tray.setToolTip('WP Debug');
@@ -147,12 +143,16 @@ const createTray = () => {
 };
 
 const showNotification = (message) => {
+  // Get the first line of the message
+  const firstLine = message.split('\n')[0].trim();
+  
   // Always show notification for new debug entries, regardless of window focus
   const notification = new Notification({
     title: 'WP Debug Log Entry',
-    body: message.substring(0, 100) + (message.length > 100 ? '...' : ''), // Truncate long messages
+    body: firstLine,
     silent: false,
-    timeoutType: 'default'
+    timeoutType: 'default',
+    icon: path.join(__dirname, 'assets', 'bug-solid.svg') // Add the bug icon to notifications
   });
   
   notification.show();
@@ -283,8 +283,8 @@ ipcMain.handle('quit-app', () => {
   app.quit();
 });
 
-app.whenReady().then(() => {
-  createTray();
+app.whenReady().then(async () => {
+  await createTray();
   createWindow();
 
   app.on('activate', () => {
