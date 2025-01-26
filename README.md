@@ -2,6 +2,19 @@
 
 A desktop application for monitoring WordPress debug logs in real-time. Built with Electron and React.
 
+## Download
+
+You can download the latest version of WP Debug from the [GitHub releases page](https://github.com/jonathanbossenger/wp-debug/releases).
+
+Currently available for:
+- macOS (Apple Silicon/M1/M2)
+- More platforms coming soon
+
+After downloading:
+1. Extract the zip file
+2. Move WP Debug.app to your Applications folder
+3. Launch the app
+
 ## Screenshot
 
 ![Screenshot](screenshots/debug.log.png)
