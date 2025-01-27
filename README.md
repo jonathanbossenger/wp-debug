@@ -26,9 +26,10 @@ You can download the latest version of WP Debug from the [GitHub releases page](
 
 Currently available for:
 - macOS (Apple Silicon/M1/M2)
+- Linux via deb and rpm packages
 - More platforms coming soon
 
-After downloading:
+macOS instructions:
 1. Extract the zip file
 2. Move WP Debug.app to your Applications folder
 3. Launch the app
