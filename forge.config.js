@@ -19,7 +19,7 @@ module.exports = {
       name: '@electron-forge/maker-squirrel',
       config: {
         name: 'wp-debug',
-        iconUrl: './assets/icons/icon.ico',
+        icon: './assets/icons/icon.ico',
         setupIcon: './assets/icons/icon.ico'
       },
     },
@@ -53,11 +53,22 @@ module.exports = {
       },
     },
     {
+      name: '@electron-forge/maker-wix',
+      config: {
+        language: 1033,
+        manufacturer: 'Jonathan Bossenger',
+        icon: './assets/icons/icon.ico',
+        ui: {
+          chooseDirectory: true
+        }
+      }
+    },
+    {
       name: '@electron-forge/maker-dmg',
       config: {
         format: 'ULFO',
         background: './assets/dmg-background.png',
-        icon: './assets/icon.icns'
+        icon: './assets/icons/icon.icns'
       }
     },
     {
@@ -66,7 +77,7 @@ module.exports = {
         options: {
           categories: ['Utility'],
           mimeType: ['x-scheme-handler/myapp'],
-          icon: './assets/icon.png'
+          icon: './assets/icons/icon.png'
         }
       }
     },
