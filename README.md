@@ -27,7 +27,7 @@ You can download the latest version of WP Debug from the [GitHub releases page](
 Currently available for:
 - macOS (Apple Silicon/M1/M2)
 - Linux via deb and rpm packages
-- More platforms coming soon
+- Windows
 
 macOS instructions:
 1. Extract the zip file
@@ -43,6 +43,37 @@ macOS instructions:
 ![Stack Trace](screenshots/stack_trace.png)
 
 ![Debug Helper](screenshots/wp_debug_function.png)
+
+## Usage
+
+1. Launch the application
+2. Select your WordPress installation directory
+3. The app will automatically:
+   - Validate the WordPress installation
+   - Configure debug settings in wp-config.php
+   - Create a mu-plugin with the `wp_debug()` helper function
+   - Start monitoring the debug.log file
+4. New debug log entries will appear in real-time with:
+   - Timestamp highlighting
+   - Alternating row colors
+   - Auto-scroll to latest entries
+5. System tray features:
+   - Click the bug icon to show/hide the main window
+   - Notifications show the first line of new debug entries
+   - Click notifications to focus the main window
+6. When quitting:
+   - Original WordPress debug settings are restored
+   - The mu-plugin is cleaned up automatically
+
+### Using the Debug Helper
+
+In your WordPress code, you can use the `wp_debug()` function to log variables:
+
+```php
+wp_debug($your_variable);
+```
+
+This will log the variable along with the file and line number where it was called.
 
 ## Features
 
@@ -140,37 +171,6 @@ For Linux:
 ```bash
 npm run make -- --platform=linux
 ```
-
-## Usage
-
-1. Launch the application
-2. Select your WordPress installation directory
-3. The app will automatically:
-   - Validate the WordPress installation
-   - Configure debug settings in wp-config.php
-   - Create a mu-plugin with the `wp_debug()` helper function
-   - Start monitoring the debug.log file
-4. New debug log entries will appear in real-time with:
-   - Timestamp highlighting
-   - Alternating row colors
-   - Auto-scroll to latest entries
-5. System tray features:
-   - Click the bug icon to show/hide the main window
-   - Notifications show the first line of new debug entries
-   - Click notifications to focus the main window
-6. When quitting:
-   - Original WordPress debug settings are restored
-   - The mu-plugin is cleaned up automatically
-
-### Using the Debug Helper
-
-In your WordPress code, you can use the `wp_debug()` function to log variables:
-
-```php
-wp_debug($your_variable);
-```
-
-This will log the variable along with the file and line number where it was called.
 
 ## Development Scripts
 
