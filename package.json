@@ -30,6 +30,7 @@
     "@electron-forge/maker-rpm": "^7.3.0",
     "@electron-forge/maker-snap": "^7.6.1",
     "@electron-forge/maker-squirrel": "^7.3.0",
+    "@electron-forge/maker-wix": "^7.6.1",
     "@electron-forge/maker-zip": "^7.3.0",
     "babel-loader": "^9.2.1",
     "css-loader": "^7.1.2",
