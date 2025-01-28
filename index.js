@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, Tray, nativeImage, Notification } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Tray, nativeImage, Notification, Menu } = require('electron');
 const path = require('path');
 const chokidar = require('chokidar');
 const fs = require('fs');
@@ -12,6 +12,7 @@ let mainWindow = null;
 let watcher = null;
 let tray = null;
 let originalDebugSettings = null;
+let isCleaningUp = false;
 
 // Function to check if directory is a WordPress installation
 const isWordPressDirectory = async (directory) => {
@@ -199,12 +200,37 @@ const createWindow = () => {
 
   // Handle window close event
   mainWindow.on('close', (event) => {
-    if (!app.isQuitting) {
+    if (!app.isQuitting && !isCleaningUp) {
       event.preventDefault();
       mainWindow.hide();
     }
-    return false;
   });
+};
+
+const createMenu = () => {
+  const template = [
+    {
+      label: app.name,
+      submenu: [
+        { role: 'about' },
+        { type: 'separator' },
+        { role: 'hide' },
+        { role: 'hideOthers' },
+        { role: 'unhide' },
+        { type: 'separator' },
+        { 
+          label: 'Quit',
+          accelerator: process.platform === 'darwin' ? 'Command+Q' : 'Alt+F4',
+          click: () => {
+            app.isQuitting = true;
+            app.quit();
+          }
+        }
+      ]
+    }
+  ];
+
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 };
 
 // Handle directory selection
@@ -288,9 +314,24 @@ ipcMain.handle('clear-debug-log', async (event, wpDirectory) => {
   }
 });
 
+// Handle quitting the app
+ipcMain.handle('quit-app', () => {
+  app.isQuitting = true;
+  app.quit();
+});
+
 // Function to restore original WP_DEBUG settings and clean up mu-plugin
 const cleanup = async () => {
+  if (isCleaningUp) return; // Prevent multiple cleanup attempts
+  isCleaningUp = true;
+  
   try {
+    // Stop the watcher if it exists
+    if (watcher) {
+      await watcher.close();
+      watcher = null;
+    }
+
     // Restore original debug settings if they exist
     if (originalDebugSettings && originalDebugSettings.directory) {
       const configPath = path.join(originalDebugSettings.directory, 'wp-config.php');
@@ -342,25 +383,47 @@ const cleanup = async () => {
     }
   } catch (error) {
     console.error('Error during cleanup:', error);
+  } finally {
+    isCleaningUp = false;
   }
 };
 
-// Handle quitting the app
-ipcMain.handle('quit-app', async () => {
-  app.isQuitting = true;
-  await cleanup();
-  app.quit();
-});
-
 app.whenReady().then(async () => {
+  createMenu();
   await createTray();
   createWindow();
 
+  // Handle dock icon clicks
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
+    if (mainWindow === null) {
       createWindow();
+    } else {
+      mainWindow.show();
+      mainWindow.focus();
     }
   });
+
+  // Handle dock icon clicks (macOS specific)
+  if (process.platform === 'darwin') {
+    app.dock.on('click', () => {
+      if (mainWindow === null) {
+        createWindow();
+      } else {
+        mainWindow.show();
+        mainWindow.focus();
+      }
+    });
+  }
+});
+
+// Handle before-quit event
+app.on('before-quit', async (event) => {
+  if (!isCleaningUp && !app.isQuitting) {
+    event.preventDefault();
+    app.isQuitting = true;
+    await cleanup();
+    app.quit();
+  }
 });
 
 app.on('window-all-closed', () => {
