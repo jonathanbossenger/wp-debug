@@ -34,6 +34,8 @@ macOS instructions:
 2. Move WP Debug.app to your Applications folder
 3. Launch the app
 
+**Note:** Since this app is not signed with an Apple developer certificate, macOS may prevent it from opening. If this happens, you'll need to override the security settings. See [Apple's guide on opening apps from unidentified developers](https://support.apple.com/en-gb/guide/mac-help/mh40617/15.0/mac/15.0) for instructions on how to safely open the app.
+
 ## Screenshots
 
 ![Select WordPress Installation](screenshots/select.png)
