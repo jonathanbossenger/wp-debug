@@ -1,6 +1,6 @@
 {
   "name": "wp-debug",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "WP Debug App",
   "main": "index.js",
   "scripts": {
@@ -63,9 +63,9 @@
     },
     "linux": {
       "target": [
-        "snap",
-        "flatpak",
-        "AppImage"
+        "deb",
+        "rpm",
+        "zip"
       ],
       "category": "Utility"
     }
