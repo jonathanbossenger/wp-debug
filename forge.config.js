@@ -62,14 +62,6 @@ module.exports = {
           chooseDirectory: true
         }
       }
-    },
-    {
-      name: '@electron-forge/maker-dmg',
-      config: {
-        format: 'ULFO',
-        background: './assets/dmg-background.png',
-        icon: './assets/icons/icon.icns'
-      }
     }
   ],
 }; 
