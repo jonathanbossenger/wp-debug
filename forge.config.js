@@ -70,27 +70,6 @@ module.exports = {
         background: './assets/dmg-background.png',
         icon: './assets/icons/icon.icns'
       }
-    },
-    {
-      name: '@electron-forge/maker-flatpak',
-      config: {
-        options: {
-          categories: ['Utility'],
-          mimeType: ['x-scheme-handler/myapp'],
-          icon: './assets/icons/icon.png'
-        }
-      }
-    },
-    {
-      name: '@electron-forge/maker-snap',
-      config: {
-        features: {
-          audio: true,
-          webgl: true
-        },
-        confinement: 'strict',
-        grade: 'stable'
-      }
     }
   ],
 }; 
