@@ -104,6 +104,17 @@ This will log the variable along with the file and line number where it was call
 
 Please use the [GitHub issues](https://github.com/jonathanbossenger/wp-debug/issues) page to report bugs or request features.
 
+## Changelog
+
+### 1.0.1
+
+- Fixed an error where the app doesn't quit in macOS properly
+- Cleaned up some of the build process
+
+### 1.0.0
+
+- Initial release
+
 ## Technical Stack
 
 - Electron - Desktop application framework
