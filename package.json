@@ -11,7 +11,8 @@
     "dev": "npm run generate-all && webpack --watch & electron-forge start",
     "build": "npm run generate-all && webpack --mode production",
     "package": "npm run build && electron-forge package",
-    "make": "npm run build && electron-forge make"
+    "make": "npm run build && electron-forge make",
+    "publish": "electron-forge publish"
   },
   "keywords": [
     "desktop",
@@ -23,7 +24,7 @@
     "@babel/core": "^7.26.7",
     "@babel/preset-env": "^7.26.7",
     "@babel/preset-react": "^7.26.3",
-    "@electron-forge/cli": "^7.3.0",
+    "@electron-forge/cli": "^7.6.1",
     "@electron-forge/maker-deb": "^7.3.0",
     "@electron-forge/maker-dmg": "^7.6.1",
     "@electron-forge/maker-flatpak": "^7.6.1",
@@ -32,6 +33,7 @@
     "@electron-forge/maker-squirrel": "^7.3.0",
     "@electron-forge/maker-wix": "^7.6.1",
     "@electron-forge/maker-zip": "^7.3.0",
+    "@electron-forge/publisher-github": "^7.6.1",
     "babel-loader": "^9.2.1",
     "css-loader": "^7.1.2",
     "electron": "^34.0.1",
@@ -47,7 +49,7 @@
     "@tailwindcss/forms": "^0.5.7",
     "autoprefixer": "^10.4.19",
     "chokidar": "^3.6.0",
-    "electron-squirrel-startup": "^1.0.0",
+    "electron-squirrel-startup": "^1.0.1",
     "postcss": "^8.4.38",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
