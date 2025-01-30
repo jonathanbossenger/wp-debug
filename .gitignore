@@ -36,7 +36,3 @@ Thumbs.db
 
 # Electron forge output
 out/
-
-# Generated icons
-assets/icons/
-assets/tray-icon.png 
