@@ -12,7 +12,6 @@ module.exports = {
         schemes: ['wp-debug']
       }
     ],
-    arch: process.env.APPLE_ARCH || undefined
   },
   rebuildConfig: {},
   makers: [
