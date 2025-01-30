@@ -11,8 +11,7 @@ jobs:
           [
             { name: 'linux', image: 'ubuntu-latest' },
             { name: 'windows', image: 'windows-latest' },
-            { name: 'macos-intel', image: 'macos-13', arch: 'x64' },
-            { name: 'macos-arm', image: 'macos-13', arch: 'arm64' },
+            { name: 'macos-universal', image: 'macos-latest', arch: 'universal' },
           ]
 
     runs-on: ${{ matrix.os.image }}
