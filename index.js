@@ -111,7 +111,7 @@ const createMuPlugin = async (wpDirectory) => {
  */
 
 if (!function_exists('wp_debug')) {
-    function wp_debug($var) {
+    function wp_debug($var, $die = false) {
         // get the backtrace
         $backtrace = debug_backtrace();
         // get the file and line number
@@ -119,7 +119,10 @@ if (!function_exists('wp_debug')) {
         $line = $backtrace[0]['line'];
         // output the debug info
         $var_dump = print_r($var, true);
-        error_log( "WP Debug in $file on line $line:\\n" . $var_dump );
+        error_log( "WP Debug called from $file on line $line:\\n" . $var_dump );
+        if ($die) {
+            die('WP Debug ended execution.');
+        }
     }
 }`;
 
