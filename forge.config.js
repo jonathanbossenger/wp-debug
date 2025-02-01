@@ -62,6 +62,12 @@ module.exports = {
           chooseDirectory: true
         }
       }
+    },
+    {
+      name: '@electron-forge/maker-dmg',
+      config: {
+        universal: true
+      }
     }
   ],
   plugins: [
