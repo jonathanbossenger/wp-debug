@@ -3,16 +3,41 @@ const path = require('path');
 const chokidar = require('chokidar');
 const fs = require('fs');
 
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (require('electron-squirrel-startup')) {
-  app.quit();
-}
-
 let mainWindow = null;
 let watcher = null;
 let tray = null;
 let originalDebugSettings = null;
 let isCleaningUp = false;
+let store = null;
+
+// Handle creating/removing shortcuts on Windows when installing/uninstalling.
+if (require('electron-squirrel-startup')) {
+  app.quit();
+}
+
+// Initialize electron store
+const initStore = async () => {
+  const { default: Store } = await import('electron-store');
+  store = new Store({
+    defaults: {
+      recentDirectories: []
+    }
+  });
+};
+
+// Function to add a directory to recent list
+const addToRecentDirectories = (directory) => {
+  if (!store) return [];
+  const recentDirectories = store.get('recentDirectories', []);
+  // Remove the directory if it already exists (to avoid duplicates)
+  const filteredDirectories = recentDirectories.filter(dir => dir !== directory);
+  // Add the new directory to the start of the array
+  filteredDirectories.unshift(directory);
+  // Keep only the last 5 directories
+  const updatedDirectories = filteredDirectories.slice(0, 5);
+  store.set('recentDirectories', updatedDirectories);
+  return updatedDirectories;
+};
 
 // Function to check if directory is a WordPress installation
 const isWordPressDirectory = async (directory) => {
@@ -248,12 +273,42 @@ ipcMain.handle('select-directory', async () => {
       await enableWPDebug(directory);
       // Create mu-plugin
       await createMuPlugin(directory);
+      // Add to recent directories
+      addToRecentDirectories(directory);
       return directory;
     } else {
       throw new Error('Selected directory is not a WordPress installation');
     }
   }
   return null;
+});
+
+// Get recent directories
+ipcMain.handle('get-recent-directories', async () => {
+  if (!store) return [];
+  return store.get('recentDirectories', []);
+});
+
+// Handle selecting a recent directory
+ipcMain.handle('select-recent-directory', async (event, directory) => {
+  // Verify it's still a WordPress directory
+  if (await isWordPressDirectory(directory)) {
+    // Enable WP_DEBUG configuration
+    await enableWPDebug(directory);
+    // Create mu-plugin
+    await createMuPlugin(directory);
+    // Move this directory to the top of recent list
+    addToRecentDirectories(directory);
+    return directory;
+  } else {
+    // Remove invalid directory from recent list
+    if (store) {
+      const recentDirectories = store.get('recentDirectories', []);
+      const filteredDirectories = recentDirectories.filter(dir => dir !== directory);
+      store.set('recentDirectories', filteredDirectories);
+    }
+    throw new Error('Selected directory is no longer a valid WordPress installation');
+  }
 });
 
 // Start watching debug.log file
@@ -389,6 +444,7 @@ const cleanup = async () => {
 };
 
 app.whenReady().then(async () => {
+  await initStore();
   createMenu();
   await createTray();
   createWindow();

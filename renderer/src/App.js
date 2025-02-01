@@ -46,6 +46,7 @@ function App() {
   const [logContent, setLogContent] = useState('');
   const [isWatching, setIsWatching] = useState(false);
   const [error, setError] = useState(null);
+  const [recentDirectories, setRecentDirectories] = useState([]);
   const logScrollAreaRef = useRef(null);
 
   useEffect(() => {
@@ -54,8 +55,19 @@ function App() {
       window.electronAPI.onDebugLogUpdated((content) => {
         setLogContent(content);
       });
+      // Load recent directories
+      loadRecentDirectories();
     }
   }, []);
+
+  const loadRecentDirectories = async () => {
+    try {
+      const directories = await window.electronAPI.getRecentDirectories();
+      setRecentDirectories(directories);
+    } catch (error) {
+      console.error('Error loading recent directories:', error);
+    }
+  };
 
   useEffect(() => {
     // Auto-scroll to bottom when log content changes
@@ -93,6 +105,24 @@ function App() {
       console.error('Error selecting directory:', error);
       setError(error.message || 'Error selecting WordPress directory');
       setSelectedDirectory(null);
+    }
+    setIsSelecting(false);
+  };
+
+  const handleSelectRecentDirectory = async (directory) => {
+    setIsSelecting(true);
+    setError(null);
+    try {
+      const validatedDirectory = await window.electronAPI.selectRecentDirectory(directory);
+      if (validatedDirectory) {
+        setSelectedDirectory(validatedDirectory);
+        await loadRecentDirectories(); // Refresh the list
+      }
+    } catch (error) {
+      console.error('Error selecting recent directory:', error);
+      setError(error.message || 'Error selecting WordPress directory');
+      setSelectedDirectory(null);
+      await loadRecentDirectories(); // Refresh the list in case directory was removed
     }
     setIsSelecting(false);
   };
@@ -188,19 +218,38 @@ function App() {
             </div>
           ) : (
             <div className="flex-1 flex items-center justify-center p-6">
-              <div className="text-center">
+              <div className="text-center w-full max-w-md">
                 <p className="text-gray-600 mb-4">Select your WordPress installation directory.</p>
-                <div className="space-x-3">
+                <div className="space-y-4">
                   <button
                     onClick={handleSelectDirectory}
                     disabled={isSelecting}
-                    className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg disabled:opacity-50 transition-colors duration-200 shadow-sm"
+                    className="w-full bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg disabled:opacity-50 transition-colors duration-200 shadow-sm"
                   >
                     {isSelecting ? 'Selecting...' : 'Select Directory'}
                   </button>
+                  
+                  {recentDirectories.length > 0 && (
+                    <div className="mt-8">
+                      <h2 className="text-lg font-semibold text-gray-700 mb-3">Recent Directories</h2>
+                      <div className="space-y-2">
+                        {recentDirectories.map((directory, index) => (
+                          <button
+                            key={index}
+                            onClick={() => handleSelectRecentDirectory(directory)}
+                            disabled={isSelecting}
+                            className="w-full text-left px-4 py-2 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-colors duration-200"
+                          >
+                            <p className="font-mono text-sm text-gray-600 truncate">{directory}</p>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
                   <button
                     onClick={handleQuit}
-                    className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg text-sm transition-colors duration-200 shadow-sm"
+                    className="w-full bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg text-sm transition-colors duration-200 shadow-sm mt-4"
                   >
                     Quit
                   </button>
