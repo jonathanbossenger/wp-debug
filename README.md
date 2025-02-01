@@ -24,15 +24,14 @@ A desktop application for monitoring WordPress debug logs in real-time. Built wi
 
 You can download the latest version of WP Debug from the [GitHub releases page](https://github.com/jonathanbossenger/wp-debug/releases).
 
-Currently available for:
-- macOS (Apple Silicon/M1/M2)
-- Linux via deb and rpm packages
-- Windows
+### macOS quarantine:
+This app is not signed, so you might get a warning when you try to open it.
 
-macOS instructions:
-1. Extract the zip file
-2. Move WP Debug.app to your Applications folder
-3. Launch the app
+- You can either overriding the security settings by following the instructions here: https://support.apple.com/en-gb/guide/mac-help/mh40617/15.0/mac/15.0
+- If you are not able to do that, you can remove the quarantine attribute by running the following command in the terminal:
+```bash
+sudo xattr -d com.apple.quarantine /path/to/WP\ Debug.app
+```
 
 ## Screenshots
 
@@ -70,10 +69,27 @@ macOS instructions:
 In your WordPress code, you can use the `wp_debug()` function to log variables:
 
 ```php
+// Basic usage
 wp_debug($your_variable);
+
+// Debug and stop execution
+wp_debug($your_variable, true);
 ```
 
-This will log the variable along with the file and line number where it was called.
+The function will:
+- Log the variable using print_r()
+- Include the file path and line number where wp_debug() was called
+- Optionally stop execution if the second parameter is set to true
+
+Example output in debug.log:
+```
+WP Debug called from /path/to/your/file.php on line 123:
+Array
+(
+    [key] => value
+    ...
+)
+```
 
 ## Features
 
@@ -105,6 +121,12 @@ This will log the variable along with the file and line number where it was call
 Please use the [GitHub issues](https://github.com/jonathanbossenger/wp-debug/issues) page to report bugs or request features.
 
 ## Changelog
+
+### 1.0.2
+
+- Update the debug helper to add the ability to stop execution of the script 
+- Added a GitHub link to the about window (props [slaFFik](https://github.com/slaFFik))
+- Added a feature to quickly open the last 5 WordPress installations you've used (props [slaFFik](https://github.com/slaFFik))
 
 ### 1.0.1
 

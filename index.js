@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, Tray, nativeImage, Notification, Menu } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Tray, nativeImage, Notification, Menu, shell } = require('electron');
 const path = require('path');
 const chokidar = require('chokidar');
 const fs = require('fs');
@@ -136,7 +136,7 @@ const createMuPlugin = async (wpDirectory) => {
  */
 
 if (!function_exists('wp_debug')) {
-    function wp_debug($var) {
+    function wp_debug($var, $die = false) {
         // get the backtrace
         $backtrace = debug_backtrace();
         // get the file and line number
@@ -144,7 +144,10 @@ if (!function_exists('wp_debug')) {
         $line = $backtrace[0]['line'];
         // output the debug info
         $var_dump = print_r($var, true);
-        error_log( "WP Debug in $file on line $line:\\n" . $var_dump );
+        error_log( "WP Debug called from $file on line $line:\\n" . $var_dump );
+        if ($die) {
+            die('WP Debug ended execution.');
+        }
     }
 }`;
 
@@ -235,9 +238,38 @@ const createWindow = () => {
 const createMenu = () => {
   const template = [
     {
-      label: app.name,
+      label: 'WP Debug',
       submenu: [
-        { role: 'about' },
+        {
+          label: 'About WP Debug',
+          click: () => {
+            const aboutWindow = new BrowserWindow({
+              width: 300,
+              height: 340,
+              title: 'About WP Debug',
+              resizable: false,
+              minimizable: false,
+              maximizable: false,
+              fullscreenable: false,
+              webPreferences: {
+                nodeIntegration: true,
+                contextIsolation: true,
+                preload: path.join(__dirname, 'preload.js'),
+              }
+            });
+
+            aboutWindow.loadFile(path.join(__dirname, 'renderer', 'about.html'));
+            
+            // Open dev tools immediately in development mode
+            if (process.env.NODE_ENV === 'development') {
+              aboutWindow.webContents.openDevTools({ mode: 'detach' });
+            }
+
+            aboutWindow.once('ready-to-show', () => {
+              aboutWindow.show();
+            });
+          }
+        },
         { type: 'separator' },
         { role: 'hide' },
         { role: 'hideOthers' },
@@ -459,16 +491,22 @@ app.whenReady().then(async () => {
     }
   });
 
-  // Handle dock icon clicks (macOS specific)
-  if (process.platform === 'darwin') {
-    app.dock.on('click', () => {
-      if (mainWindow === null) {
-        createWindow();
-      } else {
-        mainWindow.show();
-        mainWindow.focus();
+  // Handle macOS dock menu
+  if (process.platform === 'darwin' && app.dock) {
+    const dockMenu = Menu.buildFromTemplate([
+      {
+        label: 'Show Window',
+        click() {
+          if (mainWindow === null) {
+            createWindow();
+          } else {
+            mainWindow.show();
+            mainWindow.focus();
+          }
+        }
       }
-    });
+    ]);
+    app.dock.setMenu(dockMenu);
   }
 });
 
