@@ -2,7 +2,7 @@
   "name": "wp-debug",
   "version": "1.0.2",
   "description": "WP Debug App",
-  "main": "index.js",
+  "main": "main/index.js",
   "scripts": {
     "start": "electron .",
     "generate-icons": "node scripts/generate-app-icons.js",
