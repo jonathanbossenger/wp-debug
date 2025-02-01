@@ -3,6 +3,10 @@ name: Release app
 on:
   workflow_dispatch:
 
+# Add permissions block at the top level
+permissions:
+  contents: write
+
 jobs:
   build:
     strategy:
