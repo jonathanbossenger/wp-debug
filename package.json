@@ -12,7 +12,7 @@
     "build": "npm run generate-all && webpack --mode production",
     "package": "npm run build && electron-forge package",
     "make": "npm run build && electron-forge make",
-    "publish": "electron-forge publish --platform=all"
+    "publish": "electron-forge publish"
   },
   "keywords": [
     "desktop",
