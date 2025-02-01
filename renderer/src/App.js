@@ -46,6 +46,7 @@ function App() {
   const [logContent, setLogContent] = useState('');
   const [isWatching, setIsWatching] = useState(false);
   const [error, setError] = useState(null);
+  const [recentDirectories, setRecentDirectories] = useState([]);
   const logScrollAreaRef = useRef(null);
 
   useEffect(() => {
@@ -54,8 +55,19 @@ function App() {
       window.electronAPI.onDebugLogUpdated((content) => {
         setLogContent(content);
       });
+      // Load recent directories
+      loadRecentDirectories();
     }
   }, []);
+
+  const loadRecentDirectories = async () => {
+    try {
+      const directories = await window.electronAPI.getRecentDirectories();
+      setRecentDirectories(directories);
+    } catch (error) {
+      console.error('Error loading recent directories:', error);
+    }
+  };
 
   useEffect(() => {
     // Auto-scroll to bottom when log content changes
@@ -93,6 +105,24 @@ function App() {
       console.error('Error selecting directory:', error);
       setError(error.message || 'Error selecting WordPress directory');
       setSelectedDirectory(null);
+    }
+    setIsSelecting(false);
+  };
+
+  const handleSelectRecentDirectory = async (directory) => {
+    setIsSelecting(true);
+    setError(null);
+    try {
+      const validatedDirectory = await window.electronAPI.selectRecentDirectory(directory);
+      if (validatedDirectory) {
+        setSelectedDirectory(validatedDirectory);
+        await loadRecentDirectories(); // Refresh the list
+      }
+    } catch (error) {
+      console.error('Error selecting recent directory:', error);
+      setError(error.message || 'Error selecting WordPress directory');
+      setSelectedDirectory(null);
+      await loadRecentDirectories(); // Refresh the list in case directory was removed
     }
     setIsSelecting(false);
   };
@@ -189,7 +219,26 @@ function App() {
           ) : (
             <div className="flex-1 flex items-center justify-center p-6">
               <div className="text-center">
-                <p className="text-gray-600 mb-4">Select your WordPress installation directory.</p>
+                <h1 className="text-2xl font-semibold text-gray-800 mb-6">Select your WordPress installation directory</h1>
+                
+                {recentDirectories.length > 0 && (
+                  <div className="mb-6">
+                    <p className="text-gray-600 mb-3">Recent Directories</p>
+                    <div className="space-y-2 mb-6">
+                      {recentDirectories.map((directory, index) => (
+                        <button
+                          key={index}
+                          onClick={() => handleSelectRecentDirectory(directory)}
+                          disabled={isSelecting}
+                          className="w-full text-left px-4 py-2 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-colors duration-200"
+                        >
+                          <p className="font-mono text-sm text-gray-600 truncate">{directory}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="space-x-3">
                   <button
                     onClick={handleSelectDirectory}
