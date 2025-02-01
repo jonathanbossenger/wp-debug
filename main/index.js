@@ -28,11 +28,8 @@ const initStore = async () => {
 const addToRecentDirectories = (directory) => {
   if (!store) return [];
   const recentDirectories = store.get('recentDirectories', []);
-  // Remove the directory if it already exists (to avoid duplicates)
   const filteredDirectories = recentDirectories.filter(dir => dir !== directory);
-  // Add the new directory to the start of the array
   filteredDirectories.unshift(directory);
-  // Keep only the last 5 directories
   const updatedDirectories = filteredDirectories.slice(0, 5);
   store.set('recentDirectories', updatedDirectories);
   return updatedDirectories;
@@ -329,17 +326,12 @@ ipcMain.handle('get-recent-directories', async () => {
 
 // Handle selecting a recent directory
 ipcMain.handle('select-recent-directory', async (event, directory) => {
-  // Verify it's still a WordPress directory
   if (await isWordPressDirectory(directory)) {
-    // Enable WP_DEBUG configuration
     await enableWPDebug(directory);
-    // Create mu-plugin
     await createMuPlugin(directory);
-    // Move this directory to the top of recent list
     addToRecentDirectories(directory);
     return directory;
   } else {
-    // Remove invalid directory from recent list
     if (store) {
       const recentDirectories = store.get('recentDirectories', []);
       const filteredDirectories = recentDirectories.filter(dir => dir !== directory);
@@ -426,13 +418,9 @@ const cleanup = async () => {
     }
 
     const originalSettings = store.get('originalDebugSettings');
-    console.log('Retrieved original settings:', originalSettings); // Debug log
-
     if (originalSettings && originalSettings.directory) {
       const configPath = path.join(originalSettings.directory, 'wp-config.php');
       let configContent = await fs.promises.readFile(configPath, 'utf8');
-
-      console.log('Restoring debug settings:', originalSettings);
 
       for (const name of ['WP_DEBUG', 'WP_DEBUG_DISPLAY', 'WP_DEBUG_LOG']) {
         const originalValue = originalSettings[name];
@@ -441,23 +429,16 @@ const cleanup = async () => {
         if (originalValue !== null) {
           configContent = configContent.replace(
             regex,
-            `\ndefine( '${name}', ${originalValue} );\n`  // Add newlines before and after
+            `\ndefine( '${name}', ${originalValue} );\n`
           );
         } else {
-          configContent = configContent.replace(regex, '\n');  // Add newline when removing
+          configContent = configContent.replace(regex, '\n');
         }
       }
 
-      // Remove any multiple consecutive newlines that might have been created
       configContent = configContent.replace(/\n{3,}/g, '\n\n');
-
       await fs.promises.writeFile(configPath, configContent, 'utf8');
-      console.log('Debug settings restored');
-      
-      // Clear stored settings
       store.delete('originalDebugSettings');
-    } else {
-      console.log('No original settings found to restore'); // Debug log
     }
 
     // Remove mu-plugin if it exists
