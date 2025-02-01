@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import RecentDirectories from './components/RecentDirectories';
 
 const LogEntry = ({ entry, index }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -50,13 +51,10 @@ function App() {
   const logScrollAreaRef = useRef(null);
 
   useEffect(() => {
-    // Set up debug log update listener
     if (window.electronAPI) {
       window.electronAPI.onDebugLogUpdated((content) => {
         setLogContent(content);
       });
-      // Load recent directories
-      loadRecentDirectories();
     }
   }, []);
 
@@ -116,13 +114,11 @@ function App() {
       const validatedDirectory = await window.electronAPI.selectRecentDirectory(directory);
       if (validatedDirectory) {
         setSelectedDirectory(validatedDirectory);
-        await loadRecentDirectories(); // Refresh the list
       }
     } catch (error) {
-      console.error('Error selecting recent directory:', error);
+      console.error('Error selecting directory:', error);
       setError(error.message || 'Error selecting WordPress directory');
       setSelectedDirectory(null);
-      await loadRecentDirectories(); // Refresh the list in case directory was removed
     }
     setIsSelecting(false);
   };
@@ -219,25 +215,14 @@ function App() {
           ) : (
             <div className="flex-1 flex items-center justify-center p-6">
               <div className="text-center">
-                <h1 className="text-2xl font-semibold text-gray-800 mb-6">Select your WordPress installation directory</h1>
+                <h1 className="text-2xl font-semibold text-gray-800 mb-6">
+                  Select your WordPress installation directory
+                </h1>
                 
-                {recentDirectories.length > 0 && (
-                  <div className="mb-6">
-                    <p className="text-gray-600 mb-3">Recent Directories</p>
-                    <div className="space-y-2 mb-6">
-                      {recentDirectories.map((directory, index) => (
-                        <button
-                          key={index}
-                          onClick={() => handleSelectRecentDirectory(directory)}
-                          disabled={isSelecting}
-                          className="w-full text-left px-4 py-2 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-colors duration-200"
-                        >
-                          <p className="font-mono text-sm text-gray-600 truncate">{directory}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                <RecentDirectories 
+                  onDirectorySelect={handleSelectRecentDirectory} 
+                  isSelecting={isSelecting}
+                />
 
                 <div className="space-x-3">
                   <button

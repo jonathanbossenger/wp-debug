@@ -2,6 +2,10 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs').promises;
 const chokidar = require('chokidar');
+const Store = require('electron-store');
+
+// Initialize electron store
+const store = new Store();
 
 // Function to validate WordPress directory
 async function isWordPressDirectory(directory) {
@@ -14,6 +18,34 @@ async function isWordPressDirectory(directory) {
   }
 }
 
+// Add function to manage recent directories
+function addToRecentDirectories(directory) {
+  const recentDirs = store.get('recentDirectories', []);
+  console.log('Current recent dirs:', recentDirs); // Debug log
+  const updatedDirs = recentDirs.filter(dir => dir !== directory);
+  updatedDirs.unshift(directory);
+  const finalDirs = updatedDirs.slice(0, 5);
+  store.set('recentDirectories', finalDirs);
+  console.log('Updated recent dirs:', finalDirs); // Debug log
+}
+
+// Add new IPC handlers
+ipcMain.handle('get-recent-directories', () => {
+  const dirs = store.get('recentDirectories', []);
+  console.log('Returning recent directories:', dirs); // Debug log
+  return dirs;
+});
+
+ipcMain.handle('select-recent-directory', async (event, directory) => {
+  console.log('Validating directory:', directory); // Debug log
+  if (await isWordPressDirectory(directory)) {
+    addToRecentDirectories(directory);
+    return directory;
+  }
+  throw new Error('Selected directory is no longer a valid WordPress installation');
+});
+
+// Update existing handler to store directory
 async function handleSelectDirectory() {
   const result = await dialog.showOpenDialog({
     properties: ['openDirectory']
@@ -22,8 +54,8 @@ async function handleSelectDirectory() {
   if (!result.canceled) {
     const directory = result.filePaths[0];
     
-    // Validate it's a WordPress directory
     if (await isWordPressDirectory(directory)) {
+      addToRecentDirectories(directory);
       return directory;
     } else {
       throw new Error('Selected directory is not a WordPress installation');
@@ -99,9 +131,22 @@ function createWindow() {
   }
 
   // Set up IPC handlers
-  ipcMain.handle('selectDirectory', handleSelectDirectory);
-  ipcMain.handle('watchDebugLog', handleWatchDebugLog);
-  ipcMain.handle('clearDebugLog', handleClearDebugLog);
+  ipcMain.handle('select-directory', handleSelectDirectory);
+  ipcMain.handle('watch-debug-log', handleWatchDebugLog);
+  ipcMain.handle('clear-debug-log', handleClearDebugLog);
+  ipcMain.handle('get-recent-directories', () => {
+    const dirs = store.get('recentDirectories', []);
+    console.log('Returning recent directories:', dirs); // Debug log
+    return dirs;
+  });
+  ipcMain.handle('select-recent-directory', async (event, directory) => {
+    console.log('Validating directory:', directory); // Debug log
+    if (await isWordPressDirectory(directory)) {
+      addToRecentDirectories(directory);
+      return directory;
+    }
+    throw new Error('Selected directory is no longer a valid WordPress installation');
+  });
   ipcMain.handle('checkDebugSettings', async (event, directory) => {
     return await checkDebugSettings(directory);
   });
