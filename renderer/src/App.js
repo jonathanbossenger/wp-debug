@@ -48,6 +48,8 @@ function App() {
   const [isWatching, setIsWatching] = useState(false);
   const [error, setError] = useState(null);
   const [recentDirectories, setRecentDirectories] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isRegexMode, setIsRegexMode] = useState(false);
   const logScrollAreaRef = useRef(null);
 
   useEffect(() => {
@@ -144,10 +146,27 @@ function App() {
     // Split content into entries (split on timestamps at the start of a line)
     const entries = content.split(/(?=^\[.*?\])/m);
     
-    return entries.map((entry, index) => {
-      if (!entry.trim()) return null; // Skip empty entries
+    // Filter entries based on search query
+    const filteredEntries = entries.filter(entry => {
+      if (!entry.trim()) return false; // Skip empty entries
+      if (!searchQuery.trim()) return true; // Show all if no search query
+      
+      try {
+        if (isRegexMode) {
+          const regex = new RegExp(searchQuery, 'i');
+          return regex.test(entry);
+        } else {
+          return entry.toLowerCase().includes(searchQuery.toLowerCase());
+        }
+      } catch (error) {
+        // If regex is invalid, fall back to text search
+        return entry.toLowerCase().includes(searchQuery.toLowerCase());
+      }
+    });
+    
+    return filteredEntries.map((entry, index) => {
       return <LogEntry key={index} entry={entry} index={index} />;
-    }).filter(Boolean); // Remove null entries
+    });
   };
 
   return (
@@ -184,7 +203,41 @@ function App() {
               </div>
               
               <div className="flex-1 flex flex-col mt-6 min-h-0">
-                <h2 className="text-2xl font-semibold text-gray-800 mb-4">Debug Log</h2>
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-semibold text-gray-800">Debug Log</h2>
+                </div>
+                
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 mb-4 flex-none">
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <input
+                        type="text"
+                        placeholder="Search log entries..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                      />
+                    </div>
+                    <label className="flex items-center gap-2 text-sm text-gray-700 whitespace-nowrap">
+                      <input
+                        type="checkbox"
+                        checked={isRegexMode}
+                        onChange={(e) => setIsRegexMode(e.target.checked)}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      Regex
+                    </label>
+                    {searchQuery && (
+                      <button
+                        onClick={() => setSearchQuery('')}
+                        className="px-3 py-2 text-sm text-gray-500 hover:text-gray-700 border border-gray-300 rounded-md hover:border-gray-400 transition-colors duration-200"
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+                </div>
+                
                 <div ref={logScrollAreaRef} className="log-scroll-area p-4 font-mono text-sm flex-1">
                   {logContent ? (
                     <div className="log-content text-gray-800">
