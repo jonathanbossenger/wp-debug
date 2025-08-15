@@ -171,7 +171,10 @@ function App() {
       return <LogEntry key={idx} entry={entry} index={idx} />;
     });
   };
-
+    return filteredEntries.map((entry, idx) => {
+      return <LogEntry key={idx} entry={entry} index={idx} />;
+    });
+  };
   return (
     <div className="h-screen flex flex-col bg-gray-100">
       <div className="flex-1 p-4 overflow-hidden">
