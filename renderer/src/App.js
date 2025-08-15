@@ -165,7 +165,9 @@ function App() {
     });
     
     return filteredEntries.map((entry, index) => {
-      return <LogEntry key={index} entry={entry} index={index} />;
+
+    return filteredEntries.map(({ entry, originalIndex }, idx) => {
+      return <LogEntry key={originalIndex} entry={entry} index={idx} />;
     });
   };
 
