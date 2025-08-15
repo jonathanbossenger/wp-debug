@@ -54,6 +54,7 @@ jobs:
               - If you are not able to do that, you can remove the quarantine attribute by running the following command in the terminal:
         
               ```
+              # Replace /path/to/WP\ Debug.app with the actual path to your downloaded app
               sudo xattr -d com.apple.quarantine /path/to/WP\ Debug.app
               ```
 
