@@ -37,24 +37,24 @@ jobs:
           APPLE_ARCH: ${{ matrix.os.arch }}
         run: npm run publish 
 
-        - name: Update GitHub Release notes for macOS quarantine
-          if: runner.os == 'Linux'
-          uses: IsaacShelton/update-existing-release@v1.3.4
-          with:
-            token: ${{ secrets.GITHUB_TOKEN }}
-            # If you know the tag, specify it below:
-            tag: ${{ github.ref_name }} # or use the actual release tag
-            # Optionally, set release: ${{ github.event.release.name }}
-            body: |
-              ## macOS quarantine:
-              This app is not signed, so you might get a warning when you try to open it. 
-              There are two possible workarounds:
-        
-              - You can either override the security settings by following [the instructions here](https://support.apple.com/en-gb/guide/mac-help/mh40617/15.0/mac/15.0).
-              - If you are not able to do that, you can remove the quarantine attribute by running the following command in the terminal:
-        
-              ```
-              # Replace /path/to/WP\ Debug.app with the actual path to your downloaded app
-              sudo xattr -d com.apple.quarantine /path/to/WP\ Debug.app
-              ```
+      - name: Update GitHub Release notes for macOS quarantine
+        if: runner.os == 'Linux'
+        uses: IsaacShelton/update-existing-release@v1.3.4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # If you know the tag, specify it below:
+          tag: ${{ github.ref_name }} # or use the actual release tag
+          # Optionally, set release: ${{ github.event.release.name }}
+          body: |
+            ## macOS quarantine:
+            This app is not signed, so you might get a warning when you try to open it. 
+            There are two possible workarounds:
+      
+            - You can either override the security settings by following [the instructions here](https://support.apple.com/en-gb/guide/mac-help/mh40617/15.0/mac/15.0).
+            - If you are not able to do that, you can remove the quarantine attribute by running the following command in the terminal:
+      
+            ```
+            # Replace /path/to/WP\ Debug.app with the actual path to your downloaded app
+            sudo xattr -d com.apple.quarantine /path/to/WP\ Debug.app
+            ```
 
