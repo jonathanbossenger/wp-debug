@@ -19,7 +19,8 @@ const initStore = async () => {
   const { default: Store } = await import('electron-store');
   store = new Store({
     defaults: {
-      recentDirectories: []
+      recentDirectories: [],
+      alwaysOnTop: false
     }
   });
 };
@@ -205,11 +206,15 @@ const showNotification = (message) => {
 };
 
 const createWindow = () => {
+  // Get the always on top setting from store
+  const alwaysOnTop = store ? store.get('alwaysOnTop', false) : false;
+  
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 1024,
     height: 850,
     title: 'WP Debug',
+    alwaysOnTop: alwaysOnTop,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: true,
@@ -267,6 +272,25 @@ const createMenu = () => {
             aboutWindow.once('ready-to-show', () => {
               aboutWindow.show();
             });
+          }
+        },
+        { type: 'separator' },
+        {
+          label: 'Always on top',
+          type: 'checkbox',
+          checked: store ? store.get('alwaysOnTop', false) : false,
+          click: (menuItem) => {
+            const newValue = menuItem.checked;
+            if (store) {
+              store.set('alwaysOnTop', newValue);
+            }
+            if (mainWindow) {
+              mainWindow.setAlwaysOnTop(newValue);
+            }
+            // Notify renderer process about the change
+            if (mainWindow && mainWindow.webContents) {
+              mainWindow.webContents.send('always-on-top-changed', newValue);
+            }
           }
         },
         { type: 'separator' },
@@ -407,6 +431,33 @@ ipcMain.handle('quit-app', async () => {
     app.isQuitting = true;
     app.quit();
   }
+});
+
+// Handle toggling always on top
+ipcMain.handle('toggle-always-on-top', async () => {
+  if (!store || !mainWindow) return false;
+  
+  const currentValue = store.get('alwaysOnTop', false);
+  const newValue = !currentValue;
+  
+  store.set('alwaysOnTop', newValue);
+  mainWindow.setAlwaysOnTop(newValue);
+  
+  // Update the menu checkbox
+  const menu = Menu.getApplicationMenu();
+  if (menu) {
+    const alwaysOnTopItem = menu.items[0].submenu.items.find(item => item.label === 'Always on top');
+    if (alwaysOnTopItem) {
+      alwaysOnTopItem.checked = newValue;
+    }
+  }
+  
+  return newValue;
+});
+
+// Handle getting always on top status
+ipcMain.handle('get-always-on-top', async () => {
+  return store ? store.get('alwaysOnTop', false) : false;
 });
 
 // Function to restore original WP_DEBUG settings and clean up mu-plugin

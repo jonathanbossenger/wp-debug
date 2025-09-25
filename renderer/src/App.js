@@ -50,6 +50,7 @@ function App() {
   const [recentDirectories, setRecentDirectories] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isRegexMode, setIsRegexMode] = useState(false);
+  const [alwaysOnTop, setAlwaysOnTop] = useState(false);
   const logScrollAreaRef = useRef(null);
 
   useEffect(() => {
@@ -57,6 +58,12 @@ function App() {
       window.electronAPI.onDebugLogUpdated((content) => {
         setLogContent(content);
       });
+      
+      // Load initial always on top state
+      window.electronAPI.getAlwaysOnTop().then(setAlwaysOnTop);
+      
+      // Listen for always on top changes from menu
+      window.electronAPI.onAlwaysOnTopChanged(setAlwaysOnTop);
     }
   }, []);
 
@@ -142,6 +149,15 @@ function App() {
     await window.electronAPI.quitApp();
   };
 
+  const handleToggleAlwaysOnTop = async () => {
+    try {
+      const newValue = await window.electronAPI.toggleAlwaysOnTop();
+      setAlwaysOnTop(newValue);
+    } catch (error) {
+      console.error('Error toggling always on top:', error);
+    }
+  };
+
   const renderLogContent = (content) => {
     // Split content into entries (split on timestamps at the start of a line)
     const entries = content.split(/(?=^\[.*?\])/m);
@@ -173,7 +189,20 @@ function App() {
       <div className="flex-1 p-4 overflow-hidden">
         <div className="h-full flex flex-col bg-white rounded-xl shadow-lg">
           <div className="p-6 flex-none">
-            <h1 className="text-3xl font-bold text-gray-800">WP Debug</h1>
+            <div className="flex justify-between items-start">
+              <h1 className="text-3xl font-bold text-gray-800">WP Debug</h1>
+              <button
+                onClick={handleToggleAlwaysOnTop}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md border transition-all duration-200 ${
+                  alwaysOnTop
+                    ? 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100'
+                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
+                }`}
+                title={alwaysOnTop ? 'Disable always on top' : 'Enable always on top'}
+              >
+                📌 {alwaysOnTop ? 'Always on top' : 'Stay on top'}
+              </button>
+            </div>
             {error && (
               <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
                 <p className="text-red-700">{error}</p>
