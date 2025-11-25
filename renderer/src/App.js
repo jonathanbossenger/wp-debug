@@ -164,13 +164,6 @@ function App() {
       }
     });
     
-    return filteredEntries.map((entry, index) => {
-
-    return filteredEntries.map(({ entry, originalIndex }, idx) => {
-    return filteredEntries.map((entry, idx) => {
-      return <LogEntry key={idx} entry={entry} index={idx} />;
-    });
-  };
     return filteredEntries.map((entry, idx) => {
       return <LogEntry key={idx} entry={entry} index={idx} />;
     });

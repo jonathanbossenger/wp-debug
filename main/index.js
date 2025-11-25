@@ -417,6 +417,8 @@ const cleanup = async () => {
       watcher = null;
     }
 
+    if (!store) return;
+
     const originalSettings = store.get('originalDebugSettings');
     if (originalSettings && originalSettings.directory) {
       const configPath = path.join(originalSettings.directory, 'wp-config.php');
